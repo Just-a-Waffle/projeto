@@ -1,0 +1,38 @@
+#!/bin/bash
+while [ "$reply" != "5" ];do
+        echo -e "oque deseja fazer? \n[1]:fazer um backup \n[2]:listar os backups \n[3]:listar log \n[4]:limpar log \n[5]:sair"
+        read -p ":" reply
+                if [ "$reply" = "1" ];then
+                        echo "qual o nome do usuario onde sera feito o backup?"
+                        read -p ":" name
+                        echo "qual o ip da maquina de destino?"
+                        read -p ":" ip
+                        cd backups
+                        mkdir $name$ip'('$(date +%d-%h-%y-%H:%M)')'
+                        cus=$name$ip'('$(date +%d-%h-%y-%H:%M)')'
+                        echo -e "deseja fazer o backup de um \n[1]:arquivo ou \n[2]:diretorio?"
+                        read -p ":" path
+                        if [ "$path" = "1" ]; then
+                                echo "digite o nome do arquivo"
+                                read -p ":" file
+                        else echo "digite o nome do diretorio"
+                                read -p ":" dir
+                        fi
+                        if [ "$path" = "2" ]; then
+                                scp -r -C  $name$ip:$dir /home/waffle/backups/$cus
+                        else scp -C $name$ip:$file /home/waffle/backups/$cus
+                        fi
+                        zip -r $cus.zip $cus
+                        rm -r $cus
+                        cd
+                        echo -e "backup realizado no dia $(date +%d) de $(date +%b) $(date +%y) as $(date +%H:%M) \nmaquina de origem: $name$ip \narquivos salvos: $dos: $dir $file" >> logbackup.txt
+
+                elif [ "$reply" = "2" ]; then
+                        cd backups
+                        du -ah
+                elif [ "$reply" = "3" ]; then
+                        cat logbackup.txt
+                elif [ "$reply" = "4" ]; then
+                        echo " " >> logbackup.txt
+                fi
+done
